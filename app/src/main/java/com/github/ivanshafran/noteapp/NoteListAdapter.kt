@@ -47,10 +47,8 @@ private class NoteDiffCallback(
     override fun getNewListSize() = newNotes.size
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldText = oldNotes[oldItemPosition].text
-        val newText = newNotes[newItemPosition].text
-        // Introduce modificationDate to optimize?
-        return oldText == newText
+        return oldNotes[oldItemPosition].modificationDate ==
+                newNotes[newItemPosition].modificationDate
     }
 }
 

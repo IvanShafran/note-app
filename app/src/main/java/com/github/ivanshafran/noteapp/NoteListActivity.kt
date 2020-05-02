@@ -2,8 +2,12 @@ package com.github.ivanshafran.noteapp
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_note_list.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
 
@@ -19,6 +23,13 @@ class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
 
         createNoteButton.setOnClickListener {
 
+        }
+
+        lifecycleScope.launch {
+            val notes = withContext(Dispatchers.Default) {
+                database.noteDao().getAll()
+            }
+            noteListAdapter.setNotes(notes)
         }
     }
 

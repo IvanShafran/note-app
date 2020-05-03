@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.camera.view.CameraView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/camera"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/takePhotoButton"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/take_photo" />
+
+</androidx.camera.view.CameraView>

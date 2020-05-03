@@ -22,7 +22,7 @@ class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
         recyclerView.adapter = noteListAdapter
 
         createNoteButton.setOnClickListener {
-
+            startActivity(CameraActivity.getIntent(this))
         }
 
         lifecycleScope.launch {

@@ -21,7 +21,7 @@ interface NoteDao {
     suspend fun getById(id: Long): Note?
 
     @Insert
-    suspend fun insert(note: Note)
+    suspend fun insert(note: Note): Long
 
     @Delete
     suspend fun delete(note: Note)

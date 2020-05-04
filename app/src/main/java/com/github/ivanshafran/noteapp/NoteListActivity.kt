@@ -24,7 +24,10 @@ class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
         createNoteButton.setOnClickListener {
             startActivity(CameraActivity.getIntent(this))
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
         lifecycleScope.launch {
             val notes = withContext(Dispatchers.Default) {
                 database.noteDao().getAll()

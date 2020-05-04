@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
+import java.io.File
 
 class NoteViewHolder(
     view: View,
@@ -27,7 +28,9 @@ class NoteViewHolder(
     fun bind(note: Note) {
         this.note = note
         Picasso.get()
-            .load(note.imageFilePath)
+            .load(File(note.imageFilePath))
+            .fit()
+            .centerCrop()
             .into(imageView)
         textView.text = note.text
     }

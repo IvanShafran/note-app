@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.os.Bundle
 import android.widget.Toast
@@ -15,8 +14,12 @@ import androidx.camera.view.CameraView
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.activity_camera.*
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
@@ -49,7 +52,11 @@ class CameraActivity : AppCompatActivity(), ImageCapture.OnImageSavedCallback {
             if (grantResults.size == 1 && grantResults[0] == PERMISSION_GRANTED) {
                 startCamera()
             } else {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        this,
+                        Manifest.permission.CAMERA
+                    )
+                ) {
                     Toast.makeText(this, R.string.need_permission, Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, R.string.permission_in_settings, Toast.LENGTH_SHORT).show()
@@ -73,15 +80,26 @@ class CameraActivity : AppCompatActivity(), ImageCapture.OnImageSavedCallback {
     }
 
     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-        val photoFile = photoFile ?: return
-        val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+        lifecycleScope.launch {
+            val photoFile = photoFile ?: return@launch
+            creationProgressBar.isVisible = true
+            try {
+                NoteCreationUseCase(this@CameraActivity).createNoteFromImage(photoFile)
+            } catch (e: Exception) {
+                finish()
+            } finally {
+                if (isActive) {
+                    creationProgressBar.isVisible = false
+                }
+            }
+        }
     }
 
     override fun onError(exception: ImageCaptureException) {
     }
 
     private fun generatePictureFile(): File {
-        return File(filesDir, UUID.randomUUID().toString())
+        return File(filesDir, UUID.randomUUID().toString() + ".jpg")
     }
 
 }

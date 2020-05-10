@@ -1,6 +1,7 @@
 package com.github.ivanshafran.noteapp
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -27,8 +28,16 @@ class CameraActivity : AppCompatActivity(), ImageCapture.OnImageSavedCallback {
 
     companion object {
         private const val CAMERA_REQUEST_CODE = 0
+        private const val NOTE_ID_KEY = "note_id"
 
         fun getIntent(context: Context) = Intent(context, CameraActivity::class.java)
+
+        fun getNoteIdFromData(data: Intent?): Long {
+            checkNotNull(data) { "Data is null" }
+            val id = data.getLongExtra(NOTE_ID_KEY, 0L)
+            check(id != 0L) { "Note id should not be null" }
+            return id
+        }
     }
 
     private var photoFile: File? = null
@@ -84,9 +93,15 @@ class CameraActivity : AppCompatActivity(), ImageCapture.OnImageSavedCallback {
             val photoFile = photoFile ?: return@launch
             creationProgressBar.isVisible = true
             try {
-                NoteCreationUseCase(this@CameraActivity).createNoteFromImage(photoFile)
+                val id = NoteCreationUseCase(this@CameraActivity).createNoteFromImage(photoFile)
+                if (isActive) {
+                    val data = Intent()
+                    data.putExtra(NOTE_ID_KEY, id)
+                    setResult(Activity.RESULT_OK, data)
+                    finish()
+                }
             } catch (e: Exception) {
-                finish()
+                if (isActive) finish()
             } finally {
                 if (isActive) {
                     creationProgressBar.isVisible = false
@@ -96,6 +111,7 @@ class CameraActivity : AppCompatActivity(), ImageCapture.OnImageSavedCallback {
     }
 
     override fun onError(exception: ImageCaptureException) {
+        finish()
     }
 
     private fun generatePictureFile(): File {

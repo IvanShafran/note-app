@@ -1,5 +1,7 @@
 package com.github.ivanshafran.noteapp
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -10,6 +12,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
+
+    companion object {
+        private const val NEW_NOTE_REQUEST_CODE = 0
+    }
 
     private val noteListAdapter = NoteListAdapter(this)
 
@@ -22,7 +28,7 @@ class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
         recyclerView.adapter = noteListAdapter
 
         createNoteButton.setOnClickListener {
-            startActivity(CameraActivity.getIntent(this))
+            startActivityForResult(CameraActivity.getIntent(this), NEW_NOTE_REQUEST_CODE)
         }
     }
 
@@ -37,6 +43,23 @@ class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
     }
 
     override fun onClick(id: Long) {
+        openDetailNoteScreen(id)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            NEW_NOTE_REQUEST_CODE -> onNewNoteRequestResult(resultCode, data)
+            else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    private fun onNewNoteRequestResult(resultCode: Int, data: Intent?) {
+        if (resultCode != Activity.RESULT_OK) return
+        val id = CameraActivity.getNoteIdFromData(data)
+        openDetailNoteScreen(id)
+    }
+
+    private fun openDetailNoteScreen(id: Long) {
 
     }
 

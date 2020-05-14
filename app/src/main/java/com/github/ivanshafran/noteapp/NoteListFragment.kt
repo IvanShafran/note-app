@@ -3,47 +3,44 @@ package com.github.ivanshafran.noteapp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_note_list.*
+import kotlinx.android.synthetic.main.fragment_note_list.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
+class NoteListFragment : Fragment(R.layout.fragment_note_list), NoteListAdapter.OnClickListener {
 
     companion object {
         private const val NEW_NOTE_REQUEST_CODE = 0
+
+        fun newInstance() = NoteListFragment()
     }
 
-    private val noteListAdapter = NoteListAdapter(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_note_list)
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val noteListAdapter = NoteListAdapter(this)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = noteListAdapter
 
         createNoteButton.setOnClickListener {
-            startActivityForResult(CameraActivity.getIntent(this), NEW_NOTE_REQUEST_CODE)
+            startActivityForResult(
+                CameraActivity.getIntent(requireContext()),
+                NEW_NOTE_REQUEST_CODE
+            )
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
         lifecycleScope.launch {
-            val notes = withContext(Dispatchers.Default) {
+            val notes = withContext(Dispatchers.IO) {
                 database.noteDao().getAll()
             }
             noteListAdapter.setNotes(notes)
         }
-    }
-
-    override fun onClick(id: Long) {
-        openDetailNoteScreen(id)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -59,8 +56,11 @@ class NoteListActivity : AppCompatActivity(), NoteListAdapter.OnClickListener {
         openDetailNoteScreen(id)
     }
 
-    private fun openDetailNoteScreen(id: Long) {
-
+    override fun onClick(id: Long) {
+        openDetailNoteScreen(id)
     }
 
+    private fun openDetailNoteScreen(id: Long) {
+        (activity as? MainActivity)?.openDetailNoteScreen(id)
+    }
 }
